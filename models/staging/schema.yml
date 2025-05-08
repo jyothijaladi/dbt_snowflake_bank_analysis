@@ -1,0 +1,227 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: |
+      Staging model for the `customers` table. This model transforms raw customer data and enriches it with country details from the `country_codes` seed.
+    columns:
+      - name: customer_sk
+        description: |
+          Surrogate key for the customer, created by concatenating customer_id.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: |
+          Unique identifier for the customer.
+        tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: |
+          Customer's first name, cleaned and capitalized.
+      - name: last_name
+        description: |
+          Customer's last name, cleaned and capitalized.
+      - name: email
+        description: |
+          Customer's email, cleaned and made lowercase.
+        tests:
+          - unique
+      - name: phone_number
+        description: |
+          Customer's phone number, cleaned to remove non-numeric characters.
+      - name: address
+        description: |
+          Customer's address, capitalized and trimmed of extra spaces.
+      - name: city
+        description: |
+          Customer's city, capitalized.
+      - name: state
+        description: |
+          Customer's state, uppercased.
+      - name: country
+        description: |
+          Customer's country, uppercased.
+      - name: dob
+        description: |
+          Date of birth for the customer.
+      - name: created_at
+        description: |
+          Timestamp when the customer record was created.
+      - name: country_name
+        description: |
+          Enriched country name from the `country_codes` table based on `country_code`.
+      - name: region
+        description: |
+          Region of the customer's country, sourced from `country_codes`.
+    meta:
+      grain: "Customer"
+  
+  - name: stg_accounts
+    description: |
+      Staging model for the `accounts` table. This model transforms and enriches account data with descriptions from the `account_types` seed.
+    columns:
+      - name: account_sk
+        description: |
+          Surrogate key for the account, created by concatenating account_id.
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        description: |
+          Unique identifier for the account.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: |
+          The customer_id associated with the account.
+        tests:
+          - not_null
+      - name: account_type
+        description: |
+          Type of account, cleaned and made lowercase.
+      - name: balance
+        description: |
+          The current balance in the account, using coalesce to handle nulls.
+      - name: status
+        description: |
+          The status of the account (e.g., active, closed).
+      - name: opened_date
+        description: |
+          Date when the account was opened.
+      - name: closed_date
+        description: |
+          Date when the account was closed, if applicable.
+      - name: account_type_description
+        description: |
+          Enriched description for the account type from `account_types` table.
+    meta:
+      grain: "Account"
+
+  - name: stg_transactions
+    description: |
+      Staging model for the `transactions` table. This model transforms and enriches transaction data, including type categorization and merchant data.
+    columns:
+      - name: transaction_sk
+        description: |
+          Surrogate key for the transaction, created by concatenating transaction_id.
+        tests:
+          - unique
+          - not_null
+      - name: transaction_id
+        description: |
+          Unique identifier for the transaction.
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        description: |
+          The account_id associated with the transaction.
+        tests:
+          - not_null
+      - name: transaction_type
+        description: |
+          Type of the transaction (deposit, withdrawal, etc.), cleaned and made lowercase.
+      - name: amount
+        description: |
+          The amount of the transaction.
+      - name: currency
+        description: |
+          Currency in which the transaction was processed, cleaned and uppercased.
+      - name: transaction_time
+        description: |
+          The timestamp of the transaction.
+      - name: location
+        description: |
+          The location where the transaction occurred, capitalized.
+      - name: merchant
+        description: |
+          The merchant involved in the transaction, capitalized.
+      - name: transaction_category
+        description: |
+          Enriched category for the transaction, derived from `transaction_types`.
+    meta:
+      grain: "Transaction"
+
+  - name: stg_cards
+    description: |
+      Staging model for the `cards` table. This model transforms card data and enriches it with network and features from the `card_types` seed.
+    columns:
+      - name: card_sk
+        description: |
+          Surrogate key for the card, created by concatenating card_id.
+        tests:
+          - unique
+          - not_null
+      - name: card_id
+        description: |
+          Unique identifier for the card.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: |
+          The customer_id associated with the card.
+        tests:
+          - not_null
+      - name: card_type
+        description: |
+          Type of card (e.g., credit, debit), cleaned and made lowercase.
+      - name: card_status
+        description: |
+          The status of the card (e.g., active, inactive).
+      - name: issued_date
+        description: |
+          Date when the card was issued.
+      - name: expired_date
+        description: |
+          Date when the card expired.
+      - name: network
+        description: |
+          Enriched network for the card, derived from `card_types`.
+      - name: features
+        description: |
+          Enriched features for the card, derived from `card_types`.
+    meta:
+      grain: "Card"
+
+  - name: stg_card_transactions
+    description: |
+      Staging model for the `card_transactions` table. This model transforms card transaction data, including merchant and currency enrichment.
+    columns:
+      - name: card_txn_sk
+        description: |
+          Surrogate key for the card transaction, created by concatenating card_txn_id.
+        tests:
+          - unique
+          - not_null
+      - name: card_txn_id
+        description: |
+          Unique identifier for the card transaction.
+        tests:
+          - not_null
+          - unique
+      - name: card_id
+        description: |
+          The card_id associated with the transaction.
+        tests:
+          - not_null
+      - name: transaction_time
+        description: |
+          The timestamp of the card transaction.
+      - name: merchant
+        description: |
+          The merchant involved in the card transaction, capitalized.
+      - name: amount
+        description: |
+          The amount of the card transaction.
+      - name: location
+        description: |
+          The location where the card transaction occurred, capitalized.
+      - name: currency
+        description: |
+          The currency in which the card transaction was processed, cleaned and uppercased.
+    meta:
+      grain: "Card Transaction"

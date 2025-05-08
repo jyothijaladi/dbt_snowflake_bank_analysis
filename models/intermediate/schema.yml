@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_customer_accounts
+    description: |
+      This intermediate model joins `stg_customers` with `stg_accounts` to enrich customer account information.
+      It brings together account balances and customer details for analysis.
+    columns:
+      - name: customer_account_sk
+        description: |
+          Surrogate key for the customer account, created by concatenating customer_sk and account_sk.
+        tests:
+          - unique:
+              name: unique_customer_account_sk
+          - not_null:
+              name: not_null_customer_account_sk
+      - name: customer_sk
+        description: |
+          Surrogate key for the customer.
+      - name: account_sk
+        description: |
+          Surrogate key for the account.
+      - name: customer_id
+        description: |
+          The unique identifier for the customer, inherited

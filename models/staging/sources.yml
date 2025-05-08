@@ -1,0 +1,165 @@
+version: 2
+
+sources:
+  - name: raw
+    database: banking_analytics         # ❗ Replace with your actual database name
+    schema: source_data
+    description: >
+      Raw source data extracted from the core banking system and card processor.
+      These are untransformed operational tables ingested into the raw layer of the warehouse.
+    
+    tables:
+
+      - name: customers
+        description: >
+          Contains personal and contact details of bank customers.
+          Each customer has a unique ID and may own multiple accounts and cards.
+        identifier: customers
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: customer_id
+            description: Unique identifier for each customer
+            tests:
+              - unique
+              - not_null
+          - name: first_name
+            description: Customer's first name
+          - name: last_name
+            description: Customer's last name
+          - name: email
+            description: Email address
+            tests:
+              - not_null
+          - name: phone
+            description: Phone number
+          - name: address
+          - name: city
+          - name: state
+          - name: country
+          - name: dob
+            description: Date of birth
+          - name: created_at
+            description: Record creation timestamp
+            tests:
+              - not_null
+
+      - name: accounts
+        description: >
+          Details of customer bank accounts, including account type, balance,
+          and opening/closing information.
+        columns:
+          - name: account_id
+            description: Unique account identifier
+            tests:
+              - unique
+              - not_null
+          - name: customer_id
+            description: Foreign key to customers table
+            tests:
+              - not_null
+          - name: account_type
+            description: Type of the account (e.g., checking, savings)
+            tests:
+              - accepted_values:
+                  values: ['checking', 'savings', 'loan', 'credit']
+          - name: balance
+            description: Current account balance
+          - name: status
+            description: Account status (e.g., active, closed)
+            tests:
+              - accepted_values:
+                  values: ['active', 'closed', 'suspended']
+          - name: opened_date
+          - name: closed_date
+
+      - name: transactions
+        description: >
+          Captures all financial transactions performed via accounts.
+          Includes deposits, withdrawals, and internal transfers.
+        columns:
+          - name: transaction_id
+            description: Unique identifier for each transaction
+            tests:
+              - unique
+              - not_null
+          - name: account_id
+            description: Foreign key to accounts table
+            tests:
+              - not_null
+          - name: transaction_type
+            description: Type of transaction (e.g., deposit, withdrawal)
+            tests:
+              - accepted_values:
+                  values: ['deposit', 'withdrawal', 'transfer', 'payment', 'refund']
+          - name: amount
+            description: Transaction amount in given currency
+          - name: currency
+            description: ISO currency code
+            tests:
+              - accepted_values:
+                  values: ['USD', 'EUR', 'INR', 'GBP']
+          - name: transaction_time
+            description: Timestamp of when the transaction occurred
+            tests:
+              - not_null
+          - name: location
+            description: ATM or branch location
+          - name: merchant
+            description: Merchant involved in the transaction, if applicable
+
+      - name: cards
+        description: >
+          Metadata about credit, debit, and prepaid cards issued to customers.
+          Includes card type, status, and issuance/expiry.
+        columns:
+          - name: card_id
+            description: Unique card identifier
+            tests:
+              - unique
+              - not_null
+          - name: customer_id
+            description: Foreign key to customers table
+            tests:
+              - not_null
+          - name: card_type
+            description: Type of card (credit, debit, prepaid)
+            tests:
+              - accepted_values:
+                  values: ['credit', 'debit', 'prepaid']
+          - name: card_status
+            description: Current card status
+            tests:
+              - accepted_values:
+                  values: ['active', 'expired', 'blocked']
+          - name: issued_date
+          - name: expired_date
+
+      - name: card_transactions
+        description: >
+          All transactions made using cards issued by the bank.
+          This includes online purchases, POS payments, and ATM usage.
+        columns:
+          - name: card_txn_id
+            description: Unique ID for the card transaction
+            tests:
+              - unique
+              - not_null
+          - name: card_id
+            description: Foreign key to cards table
+            tests:
+              - not_null
+          - name: transaction_time
+            description: Timestamp of the card transaction
+            tests:
+              - not_null
+          - name: merchant
+            description: Merchant name
+          - name: amount
+          - name: location
+          - name: currency
+            tests:
+              - accepted_values:
+                  values: ['USD', 'EUR', 'INR', 'GBP']

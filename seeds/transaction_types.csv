@@ -1,0 +1,6 @@
+transaction_type,category
+deposit,inflow
+withdrawal,outflow
+transfer,outflow
+payment,outflow
+refund,inflow

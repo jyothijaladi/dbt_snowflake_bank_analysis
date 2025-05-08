@@ -1,0 +1,153 @@
+version: 2
+
+models:
+  - name: mart_account_transactions
+    description: Mart combining account and transaction data.
+    columns:
+      - name: account_transaction_sk
+        description: Surrogate key for account-transaction.
+        tests: [unique, not_null]
+      - name: account_sk
+        description: Surrogate key from accounts.
+      - name: transaction_sk
+        description: Surrogate key from transactions.
+      - name: account_id
+        description: Unique account ID.
+      - name: transaction_id
+        description: Unique transaction ID.
+      - name: customer_id
+        description: Linked customer ID.
+      - name: transaction_type
+        description: Type of transaction.
+      - name: transaction_category
+        description: Enriched transaction category.
+      - name: amount
+        description: Transaction amount.
+      - name: currency
+        description: Currency used.
+      - name: transaction_time
+        description: Timestamp of transaction.
+      - name: location
+        description: Transaction location.
+      - name: merchant
+        description: Merchant name.
+      - name: account_type
+        description: Type of account.
+      - name: account_type_description
+        description: Description from account_types seed.
+      - name: account_status
+        description: Status of the account.
+      - name: opened_date
+        description: Date the account was opened.
+    meta:
+      grain: account_transaction_sk
+
+  - name: mart_customer_accounts
+    description: Mart combining customer and account data.
+    columns:
+      - name: customer_account_sk
+        description: Surrogate key for customer-account.
+        tests: [unique, not_null]
+      - name: customer_sk
+        description: Surrogate key from customers.
+      - name: account_sk
+        description: Surrogate key from accounts.
+      - name: customer_id
+        description: Unique customer ID.
+      - name: account_id
+        description: Unique account ID.
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: email
+        description: Customer email.
+      - name: account_type
+        description: Type of account.
+      - name: account_type_description
+        description: Description from account_types seed.
+      - name: balance
+        description: Current account balance.
+      - name: account_status
+        description: Status of the account.
+      - name: opened_date
+        description: Account opened date.
+      - name: closed_date
+        description: Account closed date.
+      - name: country
+        description: Customer country code.
+      - name: country_name
+        description: Full country name.
+      - name: region
+        description: Region of country.
+      - name: customer_created_at
+        description: When the customer was added.
+    meta:
+      grain: customer_account_sk
+
+  - name: mart_customer_card_usage
+    description: Mart combining customer, card, and card transaction data.
+    columns:
+      - name: customer_card_usage_sk
+        description: Surrogate key for customer-card usage.
+        tests: [unique, not_null]
+      - name: customer_sk
+        description: Surrogate key from customers.
+      - name: card_sk
+        description: Surrogate key from cards.
+      - name: card_txn_sk
+        description: Surrogate key from card transactions.
+      - name: customer_id
+        description: Customer ID.
+      - name: card_id
+        description: Card ID.
+      - name: card_txn_id
+        description: Card transaction ID.
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: amount
+        description: Transaction amount.
+      - name: currency
+        description: Currency used.
+      - name: merchant
+        description: Merchant name.
+      - name: location
+        description: Transaction location.
+      - name: transaction_time
+        description: Timestamp of transaction.
+      - name: card_type
+        description: Type of card.
+      - name: card_status
+        description: Status of card.
+      - name: issued_date
+        description: Date card issued.
+      - name: expired_date
+        description: Date card expired.
+      - name: network
+        description: Card network.
+      - name: features
+        description: Card features from card_types seed.
+    meta:
+      grain: customer_card_usage_sk
+
+  - name: mart_customer_balances
+    description: Mart summarizing customer total account balances.
+    columns:
+      - name: customer_sk
+        description: Surrogate key from customers.
+        tests: [not_null]
+      - name: customer_id
+        description: Customer ID.
+        tests: [unique]
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: email
+        description: Customer email.
+      - name: total_balance
+        description: Sum of all active account balances.
+    meta:
+      grain: customer_id
